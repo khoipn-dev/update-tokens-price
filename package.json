@@ -1,0 +1,15 @@
+{
+  "name": "bot-xpo-price",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "KhoiPN",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^4.3.0",
+    "web3": "^1.3.4"
+  }
+}
