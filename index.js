@@ -3,17 +3,17 @@ const { web3 } = require("./web3");
 const { Telegraf } = require("telegraf");
 const Binance = require("node-binance-api");
 
-const XPO_BUSD_PAIR_ADDRESS = "0xdf1bc24552c04c9e0a3cf09b4148ea438087181e";
-const XPO_TOKEN_ADDRESS = "0xeBB59CeBFb63f218db6B5094DC14AbF34d56D35D";
-const BSCX_BUSD_PAIR_ADDRESS = "0xA32A983a64ce21834221AA0AD1f1533907553136";
-const BSCX_TOKEN_ADDRESS = "0x5ac52ee5b2a633895292ff6d8a89bb9190451587";
-const BOT_TELEGRAM_TOKEN = "1780315149:AAFmkfg1dkEwKSfO1ypMIaWu_FChx3UPm6g";
+const EGG_BUSD_PAIR_ADDRESS = "0xdb5be93d8830d93d2a406b2e235038db4ee7d9b1";
+const EGG_TOKEN_ADDRESS = "0xcfbb1bfa710cb2eba070cc3bec0c35226fea4baf";
+const BOT_TELEGRAM_TOKEN = "1970506098:AAHsiLHt0N5JHD-gEQ9hEIQTkc3xizHHxXY";
 const CHANNEL_ID = "@khoipn_crypto_bot";
-const TIME_ONCE_UPDATE = 10 * 1000;
-const MY_ADDRESS = '0xC00Ece9f495Cb089DF429f383d3e164AC6bC198c';
+const TIME_ONCE_UPDATE = 5 * 1000;
+const MY_ADDRESS = '0xc59F31c4e81C852311fA675B13A44E5FfF2a6d50';
 
 const binance = new Binance();
 const bot = new Telegraf(BOT_TELEGRAM_TOKEN);
+
+let previousPrice;
 
 setInterval(async () => {
   try {
@@ -24,16 +24,17 @@ setInterval(async () => {
 }, TIME_ONCE_UPDATE);
 
 const updatePrice = async () => {
-  const priceXPO = await getTokenPrice(XPO_BUSD_PAIR_ADDRESS);
-  const balanceXPO = await getBalanceOfAddress(XPO_TOKEN_ADDRESS, MY_ADDRESS);
-  const totalXPO = priceXPO * balanceXPO;
+  const eggPrice = await getTokenPrice(EGG_BUSD_PAIR_ADDRESS);
+  const eggBalance = await getBalanceOfAddress(EGG_TOKEN_ADDRESS, MY_ADDRESS);
+  const totalEgg = eggPrice * eggBalance;
   const bnbPrice = await getPriceBNB();
   const bnbBalance = await getBalanceOfAddress(null, MY_ADDRESS);
   const totalBNB = bnbPrice * bnbBalance;
-  bot.telegram.sendMessage(
-    CHANNEL_ID,
-    `${priceXPO.toFixed(3)}⚡${totalXPO.toFixed(3)}⚡${bnbPrice}⚡${totalBNB.toFixed(3)}`
+  await bot.telegram.sendMessage(
+      CHANNEL_ID,
+      `${Number(eggPrice) <= Number(previousPrice) ? '❗': ''}${eggPrice.toFixed(5)}⚡${totalEgg.toFixed(3)}⚡${bnbPrice}⚡${totalBNB.toFixed(3)}`
   );
+  previousPrice = eggPrice;
 };
 
 const getBalanceOfAddress = async (contractAddress, address) => {
@@ -54,9 +55,6 @@ const getTokenPrice = async (pairAddress) => {
   const raw_amount_1 = reserve._reserve1;
   const token_amount_0 = raw_amount_0 / Math.pow(10, 18);
   const token_amount_1 = raw_amount_1 / Math.pow(10, 18);
-  if (pairAddress === XPO_BUSD_PAIR_ADDRESS) {
-    return token_amount_0 / token_amount_1;
-  }
   return token_amount_1 / token_amount_0;
 }
 

@@ -1,6 +1,6 @@
 const Web3 = require("web3")
 
-const BSC_RPC = 'https://bsc-a29k3di6gz293snk.ezdefi.com/'
+const BSC_RPC = 'https://bsc-dataseed.binance.org/'
 
 let options = {
   timeout: 30000, // ms
