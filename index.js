@@ -7,6 +7,7 @@ const EGG_BUSD_PAIR_ADDRESS = "0xdb5be93d8830d93d2a406b2e235038db4ee7d9b1";
 const EGG_TOKEN_ADDRESS = "0xcfbb1bfa710cb2eba070cc3bec0c35226fea4baf";
 const BOT_TELEGRAM_TOKEN = "1970506098:AAHsiLHt0N5JHD-gEQ9hEIQTkc3xizHHxXY";
 const CHANNEL_ID = "@khoipn_crypto_bot";
+const CHANNEL_ID_BOT_ALERT = "@my_bot_alert";
 const TIME_ONCE_UPDATE = 5 * 1000;
 const MY_ADDRESS = '0xc59F31c4e81C852311fA675B13A44E5FfF2a6d50';
 
@@ -14,6 +15,7 @@ const binance = new Binance();
 const bot = new Telegraf(BOT_TELEGRAM_TOKEN);
 
 let previousPrice;
+let priceAlert = 0;
 
 setInterval(async () => {
   try {
@@ -34,6 +36,12 @@ const updatePrice = async () => {
       CHANNEL_ID,
       `${Number(eggPrice) <= Number(previousPrice) ? '❗': ''}${eggPrice.toFixed(5)}⚡${totalEgg.toFixed(3)}⚡${bnbPrice}⚡${totalBNB.toFixed(3)}`
   );
+  if (Number(eggPrice) > priceAlert) {
+    await bot.telegram.sendMessage(
+        CHANNEL_ID_BOT_ALERT,
+        `${eggPrice.toFixed(5)}⚡${totalEgg.toFixed(3)}`
+    );
+  }
   previousPrice = eggPrice;
 };
 
@@ -66,3 +74,19 @@ const getPriceBNB = async () => {
     return 0;
   }
 };
+
+const setPriceAlert = () => {
+  const bot = new Telegraf(BOT_TELEGRAM_TOKEN);
+  bot.start((ctx) => {
+    ctx.deleteMessage();
+    const messageText = ctx.update.message.text;
+    priceAlert = Number(messageText.slice(6));
+    if (priceAlert) {
+      ctx.reply(`Set price alert to ${priceAlert}`);
+    } else {
+      ctx.reply(`Have error`);
+    }
+  })
+  bot.launch();
+};
+setPriceAlert();
